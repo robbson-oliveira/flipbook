@@ -134,6 +134,8 @@
       justify-content: center;
       max-width: 100%;
       max-height: 100%;
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: transform;
     }
 
     #flipbook {
@@ -544,6 +546,31 @@
       });
     }
 
+    const flipbookWrapper = document.getElementById('flipbook-wrapper');
+
+    function updateBookPosition(pageIdx) {
+      if (!pageFlip) return;
+      const isMobile = window.innerWidth <= 768;
+      const total = pageFlip.getPageCount();
+      const { w } = calcSize();
+
+      if (isMobile) {
+        flipbookWrapper.style.transform = 'translateX(0px)';
+        return;
+      }
+
+      if (pageIdx === 0) {
+        // Cover page centered: shift container left by half a page width
+        flipbookWrapper.style.transform = `translateX(-${w / 2}px)`;
+      } else if (pageIdx === total - 1) {
+        // Back cover page centered: shift container right by half a page width
+        flipbookWrapper.style.transform = `translateX(${w / 2}px)`;
+      } else {
+        // 2-page open spread centered
+        flipbookWrapper.style.transform = 'translateX(0px)';
+      }
+    }
+
     function updateUI(pageIdx) {
       if (!pageFlip) return;
       const total = pageFlip.getPageCount();
@@ -561,6 +588,7 @@
       document.getElementById('page-info').textContent = label;
       const pct = (pageIdx / Math.max(total - 1, 1)) * 100;
       document.getElementById('progress-bar').style.width = Math.max(pct, 4) + '%';
+      updateBookPosition(pageIdx);
     }
 
     // ── Navigation Buttons ──
@@ -626,6 +654,7 @@
             height: h,
             usePortrait: mode === 'portrait'
           });
+          updateBookPosition(pageFlip.getCurrentPageIndex());
         }
       }, 150);
     });
