@@ -6,5 +6,5 @@ import "embed"
 // This ensures they are always available regardless of working directory,
 // which is required for Vercel serverless deployments.
 //
-//go:embed templates static
+//go:embed templates static pages index.html
 var FS embed.FS

@@ -1,6 +1,7 @@
 # Binaries
 bin/
 flipbook
+*.exe
 
 # Runtime data
 data/
