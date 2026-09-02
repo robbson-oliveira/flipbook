@@ -144,11 +144,12 @@ func runServer() {
 
 	store := storage.New(filepath.Join(cfg.DataDir, "flipbooks"))
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	if db != nil {
 		conv := converter.New(cfg.LibreOfficeBin, filepath.Join(cfg.DataDir, "tmp"), cfg.ConversionDPI, cfg.ThumbnailDPI)
 		w = worker.New(db, store, conv)
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
 		w.Start(ctx)
 
 		// Re-queue stuck jobs
@@ -161,48 +162,48 @@ func runServer() {
 				w.Enqueue(worker.Job{FlipbookID: fb.ID, SourcePath: store.OriginalPath(fb.ID, ext)})
 			}
 		}
-	}
 
-	// Integrity check: restore missing pages from GridFS
-	go func() {
-		readyFlipbooks, err := db.GetFlipbooksByStatus("ready")
-		if err != nil {
-			log.Printf("Integrity check: failed to query flipbooks: %v", err)
-			return
-		}
-		for _, fb := range readyFlipbooks {
-			if store.HasPages(fb.ID) {
-				continue
-			}
-			if fb.GridFSFileID == "" {
-				log.Printf("Integrity check: %s (%s) missing pages but no GridFS backup, skipping", fb.ID, fb.Title)
-				continue
-			}
-			log.Printf("Integrity check: %s (%s) missing pages, restoring from GridFS", fb.ID, fb.Title)
-			ext := filepath.Ext(fb.Filename)
-			dstPath := store.OriginalPath(fb.ID, ext)
-			if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
-				log.Printf("Integrity check: failed to create dir for %s: %v", fb.ID, err)
-				continue
-			}
-			f, err := os.Create(dstPath)
+		// Integrity check: restore missing pages from GridFS
+		go func() {
+			readyFlipbooks, err := db.GetFlipbooksByStatus("ready")
 			if err != nil {
-				log.Printf("Integrity check: failed to create file for %s: %v", fb.ID, err)
-				continue
+				log.Printf("Integrity check: failed to query flipbooks: %v", err)
+				return
 			}
-			_, err = db.DownloadFromGridFS(context.Background(), fb.GridFSFileID, f)
-			f.Close()
-			if err != nil {
-				log.Printf("Integrity check: GridFS download failed for %s: %v", fb.ID, err)
-				os.Remove(dstPath)
-				db.UpdateStatus(fb.ID, "error", "Failed to restore from backup: "+err.Error())
-				continue
+			for _, fb := range readyFlipbooks {
+				if store.HasPages(fb.ID) {
+					continue
+				}
+				if fb.GridFSFileID == "" {
+					log.Printf("Integrity check: %s (%s) missing pages but no GridFS backup, skipping", fb.ID, fb.Title)
+					continue
+				}
+				log.Printf("Integrity check: %s (%s) missing pages, restoring from GridFS", fb.ID, fb.Title)
+				ext := filepath.Ext(fb.Filename)
+				dstPath := store.OriginalPath(fb.ID, ext)
+				if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
+					log.Printf("Integrity check: failed to create dir for %s: %v", fb.ID, err)
+					continue
+				}
+				f, err := os.Create(dstPath)
+				if err != nil {
+					log.Printf("Integrity check: failed to create file for %s: %v", fb.ID, err)
+					continue
+				}
+				_, err = db.DownloadFromGridFS(context.Background(), fb.GridFSFileID, f)
+				f.Close()
+				if err != nil {
+					log.Printf("Integrity check: GridFS download failed for %s: %v", fb.ID, err)
+					os.Remove(dstPath)
+					db.UpdateStatus(fb.ID, "error", "Failed to restore from backup: "+err.Error())
+					continue
+				}
+				db.UpdateStatus(fb.ID, "regenerating", "")
+				w.Enqueue(worker.Job{FlipbookID: fb.ID, SourcePath: dstPath})
 			}
-			db.UpdateStatus(fb.ID, "regenerating", "")
-			w.Enqueue(worker.Job{FlipbookID: fb.ID, SourcePath: dstPath})
-		}
-		log.Println("Integrity check complete")
-	}()
+			log.Println("Integrity check complete")
+		}()
+	}
 
 	tmpl := server.ParseTemplates()
 	h := server.BuildHandler(cfg, db, store, w, tmpl)
