@@ -145,7 +145,7 @@
       border: none !important;
     }
 
-    /* ─── Realistic 3D Stacked Pages & Spine (Heyzine Style) ─── */
+    /* ─── Realistic 3D Stacked Pages & Natural Spine ─── */
     .page {
       background-color: #ffffff;
       overflow: hidden;
@@ -153,9 +153,9 @@
       border-radius: 1px;
     }
 
-    /* Cover Page (closed book): stacked page edges on right & top + deep cast shadow */
+    /* Cover Page (closed book): stacked page edges on right side (para fora da página) */
     .page.page-cover {
-      border-radius: 2px 5px 5px 2px;
+      border-radius: 2px 4px 4px 2px;
       box-shadow:
         0 0 0 1px rgba(0, 0, 0, 0.08),
         /* Layered stacked paper pages on right edge */
@@ -167,120 +167,73 @@
         6px 3px 0 #c7c1b0,
         7px 3px 0 #edebe6,
         8px 4px 0 #b8b19e,
-        9px 4px 0 #edebe6,
-        10px 5px 0 #a9a28f,
         /* Deep ambient and directional drop shadows */
-        14px 20px 40px rgba(0, 0, 0, 0.65),
-        28px 40px 80px rgba(0, 0, 0, 0.5);
+        12px 18px 40px rgba(0, 0, 0, 0.6),
+        25px 35px 70px rgba(0, 0, 0, 0.45);
     }
 
-    /* Cover Spine Shadow on left edge (intense 3D binding shadow + bevel highlight) */
+    /* Cover Spine Shadow on left edge: ultra-soft, subtle, natural curve without dark band */
     .page.page-cover .page-content::before {
       content: '';
       position: absolute;
       top: 0; left: 0; bottom: 0;
-      width: 38px;
+      width: 14px;
       background: linear-gradient(to right,
-        rgba(0, 0, 0, 0.42) 0%,
-        rgba(0, 0, 0, 0.22) 18%,
-        rgba(255, 255, 255, 0.16) 32%,
-        rgba(0, 0, 0, 0.12) 55%,
-        rgba(0, 0, 0, 0.03) 80%,
+        rgba(0, 0, 0, 0.07) 0%,
+        rgba(0, 0, 0, 0.02) 50%,
         transparent 100%
       );
       z-index: 10;
       pointer-events: none;
-      box-shadow: inset 3px 0 8px rgba(0, 0, 0, 0.35);
     }
 
-    /* Open Left Page: stacked pages on left side, deep gutter crease on right */
+    /* Open Left Page: outer shadow on left (para fora), soft gutter crease on right */
     .page.--left {
       border-radius: 4px 1px 1px 4px;
       box-shadow:
         0 0 0 1px rgba(0, 0, 0, 0.06),
-        -1px 0px 0 #edebe6,
-        -2px 1px 0 #dfdbd0,
-        -3px 1px 0 #edebe6,
-        -4px 2px 0 #d3cebf,
-        -5px 2px 0 #edebe6,
-        -6px 3px 0 #c7c1b0,
-        -12px 18px 40px rgba(0, 0, 0, 0.55);
+        -10px 15px 35px rgba(0, 0, 0, 0.5);
     }
     .page.--left .page-content::after {
       content: '';
       position: absolute;
       top: 0; right: 0; bottom: 0;
-      width: 48px;
+      width: 24px;
       background: linear-gradient(to left, 
-        rgba(0, 0, 0, 0.42) 0%,
-        rgba(0, 0, 0, 0.2) 25%,
-        rgba(0, 0, 0, 0.06) 65%,
+        rgba(0, 0, 0, 0.14) 0%,
+        rgba(0, 0, 0, 0.03) 60%,
         transparent 100%
       );
       pointer-events: none;
       z-index: 10;
     }
 
-    /* Open Right Page: stacked pages on right side, deep gutter crease on left */
+    /* Open Right Page: stacked pages on right side (para fora da página), soft gutter crease on left */
     .page.--right {
       border-radius: 1px 4px 4px 1px;
       box-shadow:
         0 0 0 1px rgba(0, 0, 0, 0.06),
+        /* Layered paper block edges on the outer right */
         1px 0px 0 #edebe6,
         2px 1px 0 #dfdbd0,
         3px 1px 0 #edebe6,
         4px 2px 0 #d3cebf,
         5px 2px 0 #edebe6,
         6px 3px 0 #c7c1b0,
-        12px 18px 40px rgba(0, 0, 0, 0.55);
+        10px 15px 35px rgba(0, 0, 0, 0.5);
     }
     .page.--right .page-content::after {
       content: '';
       position: absolute;
       top: 0; left: 0; bottom: 0;
-      width: 48px;
+      width: 24px;
       background: linear-gradient(to right, 
-        rgba(0, 0, 0, 0.42) 0%,
-        rgba(0, 0, 0, 0.2) 25%,
-        rgba(0, 0, 0, 0.06) 65%,
+        rgba(0, 0, 0, 0.14) 0%,
+        rgba(0, 0, 0, 0.03) 60%,
         transparent 100%
       );
       pointer-events: none;
       z-index: 10;
-    }
-
-    /* Back Cover (last page) */
-    .page.page-back {
-      border-radius: 5px 2px 2px 5px;
-      box-shadow:
-        0 0 0 1px rgba(0, 0, 0, 0.08),
-        -1px 0px 0 #edebe6,
-        -2px 1px 0 #dfdbd0,
-        -3px 1px 0 #edebe6,
-        -4px 2px 0 #d3cebf,
-        -5px 2px 0 #edebe6,
-        -6px 3px 0 #c7c1b0,
-        -7px 3px 0 #edebe6,
-        -8px 4px 0 #b8b19e,
-        -9px 4px 0 #edebe6,
-        -10px 5px 0 #a9a28f,
-        -14px 20px 40px rgba(0, 0, 0, 0.65),
-        -28px 40px 80px rgba(0, 0, 0, 0.5);
-    }
-    .page.page-back .page-content::before {
-      content: '';
-      position: absolute;
-      top: 0; right: 0; bottom: 0;
-      width: 38px;
-      background: linear-gradient(to left,
-        rgba(0, 0, 0, 0.42) 0%,
-        rgba(0, 0, 0, 0.22) 18%,
-        rgba(255, 255, 255, 0.16) 32%,
-        rgba(0, 0, 0, 0.12) 55%,
-        transparent 100%
-      );
-      z-index: 10;
-      pointer-events: none;
     }
 
     .page-content {
@@ -579,7 +532,7 @@
     for (let i = 1; i <= TOTAL_PAGES; i++) {
       const n = String(i).padStart(2, '0');
       const pageDiv = document.createElement('div');
-      pageDiv.className = 'page' + (i === 1 ? ' page-cover' : (i === TOTAL_PAGES ? ' page-back' : ''));
+      pageDiv.className = 'page' + (i === 1 ? ' page-cover' : '');
       if (i === 1 || i === TOTAL_PAGES) {
         pageDiv.setAttribute('data-density', 'hard');
       }
