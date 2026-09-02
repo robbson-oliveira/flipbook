@@ -52,7 +52,9 @@ func Load() *Config {
 	}
 
 	// Environment variables override config file values
-	if v := os.Getenv("FLIPBOOK_PORT"); v != "" {
+	if v := os.Getenv("PORT"); v != "" {
+		cfg.Port = v
+	} else if v := os.Getenv("FLIPBOOK_PORT"); v != "" {
 		cfg.Port = v
 	}
 	if v := os.Getenv("FLIPBOOK_BASE_URL"); v != "" {
