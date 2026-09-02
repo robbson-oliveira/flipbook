@@ -25,26 +25,30 @@
       --text-muted: #94a3b8;
     }
 
-    body {
+    html, body {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
       user-select: none;
       -webkit-user-select: none;
     }
 
     /* ─── Header ─── */
     header {
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 24px;
-      background: rgba(7, 9, 19, 0.9);
+      padding: 0 20px;
+      background: rgba(7, 9, 19, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
@@ -54,31 +58,31 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
     .brand-logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       background: var(--accent-grad);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
     }
     .brand-logo svg {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       color: #fff;
     }
     .header-title {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       color: #fff;
       letter-spacing: -0.2px;
     }
     .header-sub {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
       display: flex;
       align-items: center;
@@ -88,7 +92,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
       font-size: 11px;
       font-weight: 700;
@@ -100,13 +104,15 @@
 
     /* ─── Stage / Flipbook Viewer ─── */
     #stage {
-      flex: 1;
+      flex: 1 1 0%;
+      min-height: 0;
+      min-width: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
-      padding: 10px;
+      padding: 10px 16px;
       background: radial-gradient(circle at center, rgba(30, 27, 75, 0.35) 0%, rgba(7, 9, 19, 0.98) 75%);
     }
 
@@ -117,6 +123,8 @@
       justify-content: center;
       transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
       transform-origin: center center;
+      max-width: 100%;
+      max-height: 100%;
     }
 
     #flipbook-wrapper {
@@ -124,6 +132,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      max-width: 100%;
+      max-height: 100%;
     }
 
     #flipbook {
@@ -466,26 +476,33 @@
 
     function calcSize() {
       const isMobile = window.innerWidth <= 768;
-      const stageH = stageEl.clientHeight - (isMobile ? 16 : 32);
-      const stageW = stageEl.clientWidth - (isMobile ? 24 : 140);
-      const ratio = 595.276 / 841.89; // Exact A4 proportions
+      const stageRect = stageEl.getBoundingClientRect();
+      const availableH = (stageRect.height > 100 ? stageRect.height : (window.innerHeight - 108)) - (isMobile ? 12 : 28);
+      const availableW = (stageRect.width > 100 ? stageRect.width : window.innerWidth) - (isMobile ? 16 : 140);
+      const ratio = 595.276 / 841.89; // Exact A4 proportions (0.707)
 
       if (isMobile) {
-        let h = stageH;
-        let w = Math.round(h * ratio);
-        if (w > stageW) {
-          w = stageW;
-          h = Math.round(w / ratio);
+        let h = availableH;
+        let w = h * ratio;
+        if (w > availableW) {
+          w = availableW;
+          h = w / ratio;
         }
-        return { w: Math.max(w, 280), h: Math.max(h, 400), mode: 'portrait' };
+        return { w: Math.floor(w), h: Math.floor(h), mode: 'portrait' };
       } else {
-        let h = stageH;
-        let w = Math.round(h * ratio * 2);
-        if (w > stageW) {
-          w = stageW;
-          h = Math.round(w / (ratio * 2));
+        // Double page spread on desktop
+        let h = availableH;
+        let totalW = h * ratio * 2;
+        if (totalW > availableW) {
+          totalW = availableW;
+          h = (totalW / 2) / ratio;
         }
-        return { w: Math.max(Math.round(w / 2), 320), h: Math.max(h, 450), mode: 'landscape' };
+        if (h > availableH) {
+          h = availableH;
+          totalW = h * ratio * 2;
+        }
+        const singleW = Math.floor(totalW / 2);
+        return { w: singleW, h: Math.floor(h), mode: 'landscape' };
       }
     }
 
@@ -499,14 +516,14 @@
         width: w,
         height: h,
         size: 'fixed',
-        minWidth: 260,
-        maxWidth: 2000,
-        minHeight: 380,
-        maxHeight: 2800,
+        minWidth: 100,
+        maxWidth: 3000,
+        minHeight: 100,
+        maxHeight: 3000,
         showCover: true,
         mobileScrollSupport: false,
         drawShadow: true,
-        flippingTime: 600,
+        flippingTime: 550,
         startPage: 0,
         usePortrait: mode === 'portrait',
         autoSize: false,
