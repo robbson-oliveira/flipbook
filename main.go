@@ -127,28 +127,39 @@ func runServer() {
 	cfg := config.Load()
 	os.MkdirAll(cfg.DataDir, 0755)
 
-	db, err := database.Open(context.Background(), cfg.MongoURI, cfg.MongoDB)
-	if err != nil {
-		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	var db *database.DB
+	var w *worker.Worker
+
+	if cfg.MongoURI != "" {
+		var err error
+		db, err = database.Open(context.Background(), cfg.MongoURI, cfg.MongoDB)
+		if err != nil {
+			log.Printf("Warning: Failed to connect to MongoDB: %v", err)
+		} else {
+			defer db.Close(context.Background())
+		}
+	} else {
+		log.Println("Warning: No MongoDB URI configured.")
 	}
-	defer db.Close(context.Background())
 
 	store := storage.New(filepath.Join(cfg.DataDir, "flipbooks"))
-	conv := converter.New(cfg.LibreOfficeBin, filepath.Join(cfg.DataDir, "tmp"), cfg.ConversionDPI, cfg.ThumbnailDPI)
 
-	w := worker.New(db, store, conv)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	w.Start(ctx)
+	if db != nil {
+		conv := converter.New(cfg.LibreOfficeBin, filepath.Join(cfg.DataDir, "tmp"), cfg.ConversionDPI, cfg.ThumbnailDPI)
+		w = worker.New(db, store, conv)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		w.Start(ctx)
 
-	// Re-queue stuck jobs
-	for _, status := range []string{"converting", "regenerating"} {
-		stuck, _ := db.GetFlipbooksByStatus(status)
-		for _, fb := range stuck {
-			log.Printf("Re-queuing stuck %s: %s", status, fb.ID)
-			db.UpdateStatus(fb.ID, "pending", "")
-			ext := filepath.Ext(fb.Filename)
-			w.Enqueue(worker.Job{FlipbookID: fb.ID, SourcePath: store.OriginalPath(fb.ID, ext)})
+		// Re-queue stuck jobs
+		for _, status := range []string{"converting", "regenerating"} {
+			stuck, _ := db.GetFlipbooksByStatus(status)
+			for _, fb := range stuck {
+				log.Printf("Re-queuing stuck %s: %s", status, fb.ID)
+				db.UpdateStatus(fb.ID, "pending", "")
+				ext := filepath.Ext(fb.Filename)
+				w.Enqueue(worker.Job{FlipbookID: fb.ID, SourcePath: store.OriginalPath(fb.ID, ext)})
+			}
 		}
 	}
 

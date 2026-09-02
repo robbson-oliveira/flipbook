@@ -40,6 +40,33 @@ func ParseTemplates() *template.Template {
 // BuildHandler constructs the full HTTP handler (router + middleware).
 // Pass w=nil to disable the background worker (e.g. on Vercel — read-only mode).
 func BuildHandler(cfg *config.Config, db *database.DB, store *storage.Storage, w *worker.Worker, tmpl *template.Template) http.Handler {
+	// If database is not connected, serve static assets and friendly configuration page
+	if db == nil {
+		r := chi.NewRouter()
+		r.Use(middleware.Logger)
+		r.Use(middleware.Recoverer)
+		r.Use(SecurityHeaders)
+
+		staticFS, _ := fs.Sub(web.FS, "static")
+		r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+
+		r.HandleFunc("/*", func(rw http.ResponseWriter, req *http.Request) {
+			rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+			rw.WriteHeader(http.StatusServiceUnavailable)
+			rw.Write([]byte(`<!DOCTYPE html>
+<html>
+<head><title>Flipbook - Configuração do Banco de Dados</title><meta charset="utf-8"/><style>body{font-family:sans-serif;background:#0d0d1a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;padding:20px;text-align:center;line-height:1.6;} .box{max-width:550px;background:rgba(255,255,255,0.05);padding:30px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);} h2{color:#6366f1;} code{background:#1e1e38;padding:3px 8px;border-radius:4px;color:#a5b4fc;}</style></head>
+<body>
+<div class="box">
+  <h2>Flipbook</h2>
+  <p>O servidor está online, mas aguardando a conexão com o MongoDB Atlas.</p>
+  <p>Configure a variável de ambiente <code>FLIPBOOK_MONGO_URI</code> (ou <code>MONGODB_URI</code>) no painel da Vercel em <strong>Project Settings &rarr; Environment Variables</strong>.</p>
+</div>
+</body></html>`))
+		})
+		return r
+	}
+
 	// Initialize auth
 	a := auth.New(db, cfg.SessionSecret, tmpl)
 

@@ -63,8 +63,14 @@ func Load() *Config {
 	}
 	if v := os.Getenv("FLIPBOOK_MONGO_URI"); v != "" {
 		cfg.MongoURI = v
+	} else if v := os.Getenv("MONGODB_URI"); v != "" {
+		cfg.MongoURI = v
+	} else if v := os.Getenv("MONGO_URI"); v != "" {
+		cfg.MongoURI = v
 	}
 	if v := os.Getenv("FLIPBOOK_MONGO_DB"); v != "" {
+		cfg.MongoDB = v
+	} else if v := os.Getenv("MONGODB_DB"); v != "" {
 		cfg.MongoDB = v
 	}
 	if v := os.Getenv("FLIPBOOK_LIBREOFFICE_BIN"); v != "" {
