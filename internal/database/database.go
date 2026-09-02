@@ -73,12 +73,13 @@ type sessionDoc struct {
 }
 
 type DB struct {
-	client    *mongo.Client
-	flipbooks *mongo.Collection
-	views     *mongo.Collection
-	settings  *mongo.Collection
-	sessions  *mongo.Collection
-	gridfs    *mongo.GridFSBucket
+	client      *mongo.Client
+	flipbooks   *mongo.Collection
+	views       *mongo.Collection
+	settings    *mongo.Collection
+	sessions    *mongo.Collection
+	gridfs      *mongo.GridFSBucket // original file backup
+	pagesBucket *mongo.GridFSBucket // page PNG images
 }
 
 func Open(ctx context.Context, uri, dbName string) (*DB, error) {
@@ -91,14 +92,15 @@ func Open(ctx context.Context, uri, dbName string) (*DB, error) {
 		return nil, fmt.Errorf("mongo ping: %w", err)
 	}
 
-	db := client.Database(dbName)
+	dbInstance := client.Database(dbName)
 	d := &DB{
-		client:    client,
-		flipbooks: db.Collection("flipbooks"),
-		views:     db.Collection("views"),
-		settings:  db.Collection("settings"),
-		sessions:  db.Collection("sessions"),
-		gridfs:    db.GridFSBucket(),
+		client:      client,
+		flipbooks:   dbInstance.Collection("flipbooks"),
+		views:       dbInstance.Collection("views"),
+		settings:    dbInstance.Collection("settings"),
+		sessions:    dbInstance.Collection("sessions"),
+		gridfs:      dbInstance.GridFSBucket(),
+		pagesBucket: dbInstance.GridFSBucket(options.GridFSBucket().SetName("pages")),
 	}
 
 	d.ensureIndexes(ctx)
@@ -370,4 +372,31 @@ func (d *DB) SetGridFSFileID(id, gridfsFileID string) error {
 		},
 	})
 	return err
+}
+
+// --- Pages GridFS (page PNG images for serverless serving) ---
+
+// UploadPageImage stores a page PNG in the pages GridFS bucket.
+// The key is "{flipbookID}/{filename}" (e.g. "abc123/page-01.png").
+func (d *DB) UploadPageImage(ctx context.Context, flipbookID, filename string, r io.Reader) error {
+	key := flipbookID + "/" + filename
+	_, err := d.pagesBucket.UploadFromStream(ctx, key, r)
+	return err
+}
+
+// StreamPageImage downloads a page PNG from GridFS and writes it to w.
+func (d *DB) StreamPageImage(ctx context.Context, flipbookID, filename string, w io.Writer) error {
+	key := flipbookID + "/" + filename
+	_, err := d.pagesBucket.DownloadToStreamByName(ctx, key, w)
+	return err
+}
+
+// HasPageImages checks if any page images exist in GridFS for this flipbook.
+func (d *DB) HasPageImages(ctx context.Context, flipbookID string) bool {
+	cursor, err := d.pagesBucket.Find(ctx, bson.M{"filename": bson.M{"$regex": "^" + flipbookID + "/"}})
+	if err != nil {
+		return false
+	}
+	defer cursor.Close(ctx)
+	return cursor.Next(ctx)
 }
