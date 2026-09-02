@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Relatório de Impacto ADEC 2025 — Flipbook Interativo</title>
-  <meta name="description" content="Relatório de Impacto ADEC 2025 em formato de flipbook digital interativo com efeito 3D de virada de página." />
-  <meta property="og:title" content="Relatório de Impacto ADEC 2025 — Flipbook" />
-  <meta property="og:description" content="Acesse o Relatório de Impacto ADEC 2025 em formato interativo." />
+  <title>Relatório de Impacto ADEC 2025 — Flipbook Interativo HD</title>
+  <meta name="description" content="Relatório de Impacto ADEC 2025 em formato de flipbook digital interativo com efeito 3D em altíssima resolução." />
+  <meta property="og:title" content="Relatório de Impacto ADEC 2025 — Flipbook HD" />
+  <meta property="og:description" content="Acesse o Relatório de Impacto ADEC 2025 em alta definição." />
   <meta property="og:image" content="/pages/page-01.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,16 +15,18 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0b0d17;
+      --bg: #070913;
+      --surface: #0f1322;
       --accent: #6366f1;
       --accent-grad: linear-gradient(135deg, #6366f1, #8b5cf6);
-      --glass: rgba(255, 255, 255, 0.05);
-      --border: rgba(255, 255, 255, 0.08);
-      --text: #e2e8f0;
+      --glass: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
     }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -41,9 +43,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 24px;
-      background: rgba(11, 13, 23, 0.85);
-      backdrop-filter: blur(16px);
+      padding: 10px 24px;
+      background: rgba(7, 9, 19, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
       z-index: 100;
       flex-shrink: 0;
@@ -51,7 +54,22 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
+    }
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--accent-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+    .brand-logo svg {
+      width: 18px;
+      height: 18px;
+      color: #fff;
     }
     .header-title {
       font-size: 15px;
@@ -61,123 +79,169 @@
     }
     .header-sub {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.5);
-      margin-top: 1px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .header-badge {
-      background: var(--accent-grad);
-      color: #fff;
+    .hd-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 6px;
       font-size: 11px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
       letter-spacing: 0.5px;
-      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
     }
 
-    /* ─── Stage ─── */
+    /* ─── Stage / Flipbook Viewer ─── */
     #stage {
       flex: 1;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
-      padding: 16px;
+      padding: 10px;
+      background: radial-gradient(circle at center, rgba(30, 27, 75, 0.35) 0%, rgba(7, 9, 19, 0.98) 75%);
     }
 
-    /* Ambient glow */
-    #stage::before {
-      content: '';
-      position: absolute;
-      width: 600px;
-      height: 400px;
-      background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-    }
-
-    /* ─── Flipbook container ─── */
-    #flipbook-container {
+    #stage-inner {
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 20px;
-      width: 100%;
-      height: 100%;
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform-origin: center center;
+    }
+
+    #flipbook-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #flipbook {
       box-shadow:
         0 0 0 1px rgba(255, 255, 255, 0.08),
-        0 25px 80px rgba(0, 0, 0, 0.7),
-        0 0 120px rgba(99, 102, 241, 0.12);
-      border-radius: 4px;
-      touch-action: pan-y pinch-zoom;
+        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 0 100px rgba(99, 102, 241, 0.1);
+      border-radius: 3px;
     }
 
-    /* ─── Nav arrows ─── */
-    .nav-btn {
-      width: 48px;
-      height: 48px;
+    /* Page elements inside flipbook */
+    .page {
+      background-color: #ffffff;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+    }
+    .page-content {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    .page-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: high-quality;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+
+    /* Spine and page shadows */
+    .page.--left .page-content::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 25px;
+      background: linear-gradient(to left, rgba(0,0,0,0.18), transparent);
+      pointer-events: none;
+    }
+    .page.--right .page-content::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 25px;
+      background: linear-gradient(to right, rgba(0,0,0,0.18), transparent);
+      pointer-events: none;
+    }
+
+    /* ─── Navigation Arrows ─── */
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(12px);
-      color: rgba(255, 255, 255, 0.85);
+      background: rgba(15, 19, 34, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      color: rgba(255, 255, 255, 0.9);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
-      z-index: 20;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 50;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     }
-    .nav-btn:hover {
-      background: rgba(99, 102, 241, 0.35);
-      border-color: rgba(99, 102, 241, 0.6);
+    .nav-arrow:hover {
+      background: var(--accent);
+      border-color: var(--accent);
       color: #fff;
-      transform: scale(1.08);
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
     }
-    .nav-btn:active { transform: scale(0.95); }
-    .nav-btn svg { width: 22px; height: 22px; }
+    .nav-arrow:active { transform: translateY(-50%) scale(0.95); }
+    .nav-arrow.prev { left: 24px; }
+    .nav-arrow.next { right: 24px; }
+    .nav-arrow svg { width: 24px; height: 24px; }
 
-    /* ─── Controls bar ─── */
+    /* ─── Bottom Controls Bar ─── */
     #controls {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 12px 20px;
-      background: rgba(11, 13, 23, 0.85);
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 24px;
+      background: rgba(7, 9, 19, 0.92);
       border-top: 1px solid var(--border);
-      backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       flex-shrink: 0;
-      justify-content: center;
-      flex-wrap: wrap;
       z-index: 100;
     }
 
-    #page-info {
-      font-size: 13px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.75);
-      min-width: 100px;
-      text-align: center;
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .ctrl-btn {
-      height: 36px;
-      padding: 0 14px;
+      height: 38px;
+      padding: 0 12px;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--glass);
       color: rgba(255, 255, 255, 0.85);
       font-size: 13px;
-      font-family: 'Inter', sans-serif;
+      font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -186,249 +250,273 @@
     }
     .ctrl-btn:hover {
       background: rgba(255, 255, 255, 0.12);
-      color: #fff;
       border-color: rgba(255, 255, 255, 0.25);
+      color: #fff;
     }
-    .ctrl-btn svg { width: 15px; height: 15px; }
+    .ctrl-btn:active { transform: scale(0.96); }
+    .ctrl-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
     .ctrl-btn.primary {
       background: var(--accent-grad);
       border-color: transparent;
       color: #fff;
-      font-weight: 500;
-      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
     }
     .ctrl-btn.primary:hover {
-      filter: brightness(1.1);
+      filter: brightness(1.12);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
     }
 
-    /* Progress bar */
-    #progress-bar-wrap {
-      width: 120px;
-      height: 4px;
+    #page-info {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      min-width: 90px;
+      text-align: center;
+      letter-spacing: 0.2px;
+    }
+
+    #progress-wrap {
+      width: 130px;
+      height: 6px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 2px;
+      border-radius: 3px;
       overflow: hidden;
+      cursor: pointer;
     }
     #progress-bar {
       height: 100%;
       background: var(--accent-grad);
-      border-radius: 2px;
-      transition: width 0.3s ease;
-      width: 0%;
+      border-radius: 3px;
+      width: 4%;
+      transition: width 0.25s ease;
     }
 
-    /* Loading overlay */
+    /* ─── Zoom Overlay Controls ─── */
+    .zoom-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      min-width: 45px;
+      text-align: center;
+    }
+
+    /* ─── Loading Overlay ─── */
     #loading {
       position: fixed;
       inset: 0;
-      background: #0b0d17;
+      background: #070913;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      gap: 20px;
-      transition: opacity 0.5s ease;
+      gap: 16px;
+      transition: opacity 0.4s ease;
     }
     #loading.hidden { opacity: 0; pointer-events: none; }
 
     .spinner {
-      width: 52px;
-      height: 52px;
-      border: 3px solid rgba(99, 102, 241, 0.2);
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(99, 102, 241, 0.15);
       border-top-color: #6366f1;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    #loading p {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.5);
-    }
-    #loading strong {
-      display: block;
-      font-size: 18px;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 4px;
-    }
+    #loading h3 { font-size: 17px; font-weight: 600; color: #fff; }
+    #loading p { font-size: 13px; color: var(--text-muted); }
 
-    /* Keyboard hint */
-    .kbd-hint {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.35);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .kbd {
-      display: inline-block;
-      padding: 2px 6px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-      font-family: monospace;
-      font-size: 11px;
-      color: #cbd5e1;
-    }
-
+    /* Responsive */
     @media (max-width: 768px) {
-      header { padding: 10px 16px; }
+      header { padding: 8px 14px; }
       .header-title { font-size: 13px; }
-      .header-badge { font-size: 10px; padding: 2px 8px; }
-      .nav-btn { width: 38px; height: 38px; }
-      .nav-btn svg { width: 18px; height: 18px; }
-      .kbd-hint { display: none; }
-      #progress-bar-wrap { width: 80px; }
-      #stage { padding: 8px; }
+      .nav-arrow { width: 42px; height: 42px; }
+      .nav-arrow.prev { left: 8px; }
+      .nav-arrow.next { right: 8px; }
+      #controls { padding: 8px 12px; gap: 8px; }
+      .btn-text { display: none; }
+      #progress-wrap { width: 70px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Loading overlay -->
+  <!-- Loading -->
   <div id="loading">
     <div class="spinner"></div>
-    <div style="text-align:center">
-      <strong>Carregando Relatório</strong>
-      <p>ADEC 2025 &bull; 25 páginas em alta resolução</p>
-    </div>
+    <h3>Carregando Relatório ADEC 2025</h3>
+    <p>Renderizando páginas em Ultra HD 300 DPI...</p>
   </div>
 
   <!-- Header -->
   <header>
     <div class="header-left">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </div>
       <div>
         <div class="header-title">Relatório de Impacto ADEC 2025</div>
-        <div class="header-sub" id="header-sub">Carregando páginas...</div>
+        <div class="header-sub">
+          <span>Associação de Desenvolvimento Esportivo e Cultural</span>
+        </div>
       </div>
     </div>
-    <span class="header-badge">ADEC 2025</span>
+    <div class="hd-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      ULTRA HD 300 DPI
+    </div>
   </header>
 
   <!-- Stage -->
-  <div id="stage">
-    <div id="flipbook-container">
-      <button class="nav-btn" id="btn-prev" aria-label="Página anterior" title="Página anterior (←)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
+  <main id="stage">
+    <button class="nav-arrow prev" id="btn-prev" aria-label="Página anterior" title="Página anterior (←)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
 
-      <div id="flipbook"></div>
-
-      <button class="nav-btn" id="btn-next" aria-label="Próxima página" title="Próxima página (→)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-      </button>
+    <div id="stage-inner">
+      <div id="flipbook-wrapper">
+        <div id="flipbook">
+          <!-- Dynamic high-res HTML pages with subpixel GPU rendering -->
+        </div>
+      </div>
     </div>
-  </div>
+
+    <button class="nav-arrow next" id="btn-next" aria-label="Próxima página" title="Próxima página (→)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </main>
 
   <!-- Controls -->
-  <div id="controls">
-    <button class="ctrl-btn" id="btn-first" title="Primeira página (Home)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
-      </svg>
-      Início
-    </button>
+  <footer id="controls">
+    <div class="ctrl-group">
+      <button class="ctrl-btn" id="btn-first" title="Primeira página">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+        <span class="btn-text">Início</span>
+      </button>
 
-    <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+      <div id="progress-wrap" title="Progresso de leitura">
+        <div id="progress-bar"></div>
+      </div>
 
-    <span id="page-info">— / 25</span>
+      <span id="page-info">Pág. 1 / 25</span>
 
-    <button class="ctrl-btn" id="btn-last" title="Última página (End)">
-      Fim
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
-      </svg>
-    </button>
-
-    <button class="ctrl-btn primary" id="btn-fullscreen" title="Tela cheia (F)">
-      <svg id="fs-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
-        <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
-      </svg>
-      <span id="fs-text">Tela cheia</span>
-    </button>
-
-    <div class="kbd-hint">
-      <span class="kbd">←</span> <span class="kbd">→</span> virar página &bull; <span class="kbd">F</span> tela cheia
+      <button class="ctrl-btn" id="btn-last" title="Última página">
+        <span class="btn-text">Fim</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+      </button>
     </div>
-  </div>
+
+    <div class="ctrl-group">
+      <!-- Zoom Controls -->
+      <button class="ctrl-btn" id="btn-zoom-out" title="Reduzir zoom">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </button>
+      <span class="zoom-badge" id="zoom-val">100%</span>
+      <button class="ctrl-btn" id="btn-zoom-in" title="Aumentar zoom (Nitidez máxima)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </button>
+
+      <button class="ctrl-btn primary" id="btn-fullscreen" title="Tela cheia (F)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        <span class="btn-text" id="fs-text">Tela Cheia</span>
+      </button>
+    </div>
+  </footer>
 
   <!-- StPageFlip script -->
   <script src="https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
   <script>
     const TOTAL_PAGES = 25;
-    const pages = [];
+    const flipbookEl = document.getElementById('flipbook');
+    const stageEl = document.getElementById('stage');
+    const stageInner = document.getElementById('stage-inner');
+
+    // Build DOM pages
     for (let i = 1; i <= TOTAL_PAGES; i++) {
       const n = String(i).padStart(2, '0');
-      pages.push(`/pages/page-${n}.png`);
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'page' + (i === 1 ? ' page-cover' : '');
+      if (i === 1 || i === TOTAL_PAGES) {
+        pageDiv.setAttribute('data-density', 'hard');
+      }
+      
+      const content = document.createElement('div');
+      content.className = 'page-content';
+
+      const img = document.createElement('img');
+      img.src = `/pages/page-${n}.png`;
+      img.alt = `Página ${i}`;
+      img.loading = i <= 6 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+
+      content.appendChild(img);
+      pageDiv.appendChild(content);
+      flipbookEl.appendChild(pageDiv);
     }
 
     function calcSize() {
-      const stageEl = document.getElementById('stage');
       const isMobile = window.innerWidth <= 768;
-      const stageH = stageEl.clientHeight - (isMobile ? 20 : 40);
-      const stageW = stageEl.clientWidth - (isMobile ? 40 : 160);
-      
-      const ratio = 595 / 841; // A4 aspect ratio
+      const stageH = stageEl.clientHeight - (isMobile ? 16 : 32);
+      const stageW = stageEl.clientWidth - (isMobile ? 24 : 140);
+      const ratio = 595.276 / 841.89; // Exact A4 proportions
 
       if (isMobile) {
-        // Single page portrait on mobile
         let h = stageH;
         let w = Math.round(h * ratio);
         if (w > stageW) {
           w = stageW;
           h = Math.round(w / ratio);
         }
-        return { w, h, mode: 'portrait' };
+        return { w: Math.max(w, 280), h: Math.max(h, 400), mode: 'portrait' };
       } else {
-        // Double page landscape on desktop
         let h = stageH;
         let w = Math.round(h * ratio * 2);
         if (w > stageW) {
           w = stageW;
           h = Math.round(w / (ratio * 2));
         }
-        return { w: Math.round(w / 2), h, mode: 'landscape' };
+        return { w: Math.max(Math.round(w / 2), 320), h: Math.max(h, 450), mode: 'landscape' };
       }
     }
 
     let pageFlip = null;
+    let currentZoom = 1.0;
 
     function initFlipbook() {
       const { w, h, mode } = calcSize();
-      const container = document.getElementById('flipbook');
-      container.innerHTML = '';
 
-      pageFlip = new St.PageFlip(container, {
+      pageFlip = new St.PageFlip(flipbookEl, {
         width: w,
         height: h,
         size: 'fixed',
-        minWidth: 200,
-        maxWidth: 1600,
-        minHeight: 300,
-        maxHeight: 2400,
+        minWidth: 260,
+        maxWidth: 2000,
+        minHeight: 380,
+        maxHeight: 2800,
         showCover: true,
         mobileScrollSupport: false,
         drawShadow: true,
-        flippingTime: 650,
+        flippingTime: 600,
         startPage: 0,
         usePortrait: mode === 'portrait',
         autoSize: false,
-        maxShadowOpacity: 0.6,
+        maxShadowOpacity: 0.5,
         clickEventForward: true,
         useMouseEvents: true,
-        swipeDistance: 25,
-        showPageCount: true,
+        swipeDistance: 20
       });
 
-      pageFlip.loadFromImages(pages);
+      pageFlip.loadFromHTML(document.querySelectorAll('.page'));
 
       pageFlip.on('flip', (e) => updateUI(e.data));
       pageFlip.on('changeState', () => updateUI(pageFlip.getCurrentPageIndex()));
@@ -436,45 +524,64 @@
       pageFlip.on('init', () => {
         document.getElementById('loading').classList.add('hidden');
         updateUI(0);
-        document.getElementById('header-sub').textContent = `${TOTAL_PAGES} páginas`;
       });
     }
 
     function updateUI(pageIdx) {
       if (!pageFlip) return;
       const total = pageFlip.getPageCount();
-      const display = pageIdx + 1;
-      document.getElementById('page-info').textContent = `Pág. ${display} / ${total}`;
+      const isMobile = window.innerWidth <= 768;
+      
+      let label = '';
+      if (isMobile || pageIdx === 0 || pageIdx === total - 1) {
+        label = `Pág. ${pageIdx + 1} / ${total}`;
+      } else {
+        const left = pageIdx;
+        const right = pageIdx + 1;
+        label = `Pág. ${left}-${right} / ${total}`;
+      }
+
+      document.getElementById('page-info').textContent = label;
       const pct = (pageIdx / Math.max(total - 1, 1)) * 100;
-      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('progress-bar').style.width = Math.max(pct, 4) + '%';
     }
 
-    // ── Controls ──
+    // ── Navigation Buttons ──
     document.getElementById('btn-prev').addEventListener('click', () => pageFlip && pageFlip.flipPrev());
     document.getElementById('btn-next').addEventListener('click', () => pageFlip && pageFlip.flipNext());
     document.getElementById('btn-first').addEventListener('click', () => pageFlip && pageFlip.flip(0));
     document.getElementById('btn-last').addEventListener('click', () => pageFlip && pageFlip.flip(pageFlip.getPageCount() - 1));
 
-    document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
+    // ── Zoom Controls ──
+    const zoomVal = document.getElementById('zoom-val');
 
+    function applyZoom(delta) {
+      if (delta === 0) currentZoom = 1.0;
+      else currentZoom = Math.min(Math.max(currentZoom + delta, 0.8), 2.2);
+      
+      stageInner.style.transform = `scale(${currentZoom})`;
+      zoomVal.textContent = Math.round(currentZoom * 100) + '%';
+    }
+
+    document.getElementById('btn-zoom-in').addEventListener('click', () => applyZoom(0.2));
+    document.getElementById('btn-zoom-out').addEventListener('click', () => applyZoom(-0.2));
+
+    // ── Fullscreen ──
     function toggleFullscreen() {
       const fsText = document.getElementById('fs-text');
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
-        fsText.textContent = 'Sair';
+        if (fsText) fsText.textContent = 'Sair';
       } else {
         document.exitFullscreen().catch(() => {});
-        fsText.textContent = 'Tela cheia';
+        if (fsText) fsText.textContent = 'Tela Cheia';
       }
     }
+    document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
 
     document.addEventListener('fullscreenchange', () => {
       const fsText = document.getElementById('fs-text');
-      if (document.fullscreenElement) {
-        fsText.textContent = 'Sair';
-      } else {
-        fsText.textContent = 'Tela cheia';
-      }
+      if (fsText) fsText.textContent = document.fullscreenElement ? 'Sair' : 'Tela Cheia';
     });
 
     // ── Keyboard ──
@@ -485,9 +592,12 @@
       if (e.key === 'f' || e.key === 'F') toggleFullscreen();
       if (e.key === 'Home') pageFlip.flip(0);
       if (e.key === 'End')  pageFlip.flip(pageFlip.getPageCount() - 1);
+      if (e.key === '+' || e.key === '=') applyZoom(0.2);
+      if (e.key === '-') applyZoom(-0.2);
+      if (e.key === '0') applyZoom(0);
     });
 
-    // ── Resize handler with debounce ──
+    // ── Resize ──
     let resizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
@@ -500,7 +610,7 @@
             usePortrait: mode === 'portrait'
           });
         }
-      }, 200);
+      }, 150);
     });
 
     window.addEventListener('load', initFlipbook);
