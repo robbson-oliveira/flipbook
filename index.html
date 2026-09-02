@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Relatório de Impacto ADEC 2025 — Flipbook Interativo</title>
+  <meta name="description" content="Relatório de Impacto ADEC 2025 em formato de flipbook digital interativo com efeito 3D de virada de página." />
+  <meta property="og:title" content="Relatório de Impacto ADEC 2025 — Flipbook" />
+  <meta property="og:description" content="Acesse o Relatório de Impacto ADEC 2025 em formato interativo." />
+  <meta property="og:image" content="/pages/page-01.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0d17;
+      --accent: #6366f1;
+      --accent-grad: linear-gradient(135deg, #6366f1, #8b5cf6);
+      --glass: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ─── Header ─── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background: rgba(11, 13, 23, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+    .header-sub {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 1px;
+    }
+    .header-badge {
+      background: var(--accent-grad);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    /* ─── Stage ─── */
+    #stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    /* Ambient glow */
+    #stage::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* ─── Flipbook container ─── */
+    #flipbook-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      height: 100%;
+    }
+
+    #flipbook {
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 25px 80px rgba(0, 0, 0, 0.7),
+        0 0 120px rgba(99, 102, 241, 0.12);
+      border-radius: 4px;
+      touch-action: pan-y pinch-zoom;
+    }
+
+    /* ─── Nav arrows ─── */
+    .nav-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+    .nav-btn:hover {
+      background: rgba(99, 102, 241, 0.35);
+      border-color: rgba(99, 102, 241, 0.6);
+      color: #fff;
+      transform: scale(1.08);
+    }
+    .nav-btn:active { transform: scale(0.95); }
+    .nav-btn svg { width: 22px; height: 22px; }
+
+    /* ─── Controls bar ─── */
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 20px;
+      background: rgba(11, 13, 23, 0.85);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      flex-shrink: 0;
+      justify-content: center;
+      flex-wrap: wrap;
+      z-index: 100;
+    }
+
+    #page-info {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.75);
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .ctrl-btn {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .ctrl-btn svg { width: 15px; height: 15px; }
+
+    .ctrl-btn.primary {
+      background: var(--accent-grad);
+      border-color: transparent;
+      color: #fff;
+      font-weight: 500;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+    }
+    .ctrl-btn.primary:hover {
+      filter: brightness(1.1);
+    }
+
+    /* Progress bar */
+    #progress-bar-wrap {
+      width: 120px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    #progress-bar {
+      height: 100%;
+      background: var(--accent-grad);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    /* Loading overlay */
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: #0b0d17;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      gap: 20px;
+      transition: opacity 0.5s ease;
+    }
+    #loading.hidden { opacity: 0; pointer-events: none; }
+
+    .spinner {
+      width: 52px;
+      height: 52px;
+      border: 3px solid rgba(99, 102, 241, 0.2);
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #loading p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    #loading strong {
+      display: block;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    /* Keyboard hint */
+    .kbd-hint {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #cbd5e1;
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 10px 16px; }
+      .header-title { font-size: 13px; }
+      .header-badge { font-size: 10px; padding: 2px 8px; }
+      .nav-btn { width: 38px; height: 38px; }
+      .nav-btn svg { width: 18px; height: 18px; }
+      .kbd-hint { display: none; }
+      #progress-bar-wrap { width: 80px; }
+      #stage { padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading overlay -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div style="text-align:center">
+      <strong>Carregando Relatório</strong>
+      <p>ADEC 2025 &bull; 25 páginas em alta resolução</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <div>
+        <div class="header-title">Relatório de Impacto ADEC 2025</div>
+        <div class="header-sub" id="header-sub">Carregando páginas...</div>
+      </div>
+    </div>
+    <span class="header-badge">ADEC 2025</span>
+  </header>
+
+  <!-- Stage -->
+  <div id="stage">
+    <div id="flipbook-container">
+      <button class="nav-btn" id="btn-prev" aria-label="Página anterior" title="Página anterior (←)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+
+      <div id="flipbook"></div>
+
+      <button class="nav-btn" id="btn-next" aria-label="Próxima página" title="Próxima página (→)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <button class="ctrl-btn" id="btn-first" title="Primeira página (Home)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
+      </svg>
+      Início
+    </button>
+
+    <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+    <span id="page-info">— / 25</span>
+
+    <button class="ctrl-btn" id="btn-last" title="Última página (End)">
+      Fim
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
+      </svg>
+    </button>
+
+    <button class="ctrl-btn primary" id="btn-fullscreen" title="Tela cheia (F)">
+      <svg id="fs-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+        <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+      </svg>
+      <span id="fs-text">Tela cheia</span>
+    </button>
+
+    <div class="kbd-hint">
+      <span class="kbd">←</span> <span class="kbd">→</span> virar página &bull; <span class="kbd">F</span> tela cheia
+    </div>
+  </div>
+
+  <!-- StPageFlip script -->
+  <script src="https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+  <script>
+    const TOTAL_PAGES = 25;
+    const pages = [];
+    for (let i = 1; i <= TOTAL_PAGES; i++) {
+      const n = String(i).padStart(2, '0');
+      pages.push(`/pages/page-${n}.png`);
+    }
+
+    function calcSize() {
+      const stageEl = document.getElementById('stage');
+      const isMobile = window.innerWidth <= 768;
+      const stageH = stageEl.clientHeight - (isMobile ? 20 : 40);
+      const stageW = stageEl.clientWidth - (isMobile ? 40 : 160);
+      
+      const ratio = 595 / 841; // A4 aspect ratio
+
+      if (isMobile) {
+        // Single page portrait on mobile
+        let h = stageH;
+        let w = Math.round(h * ratio);
+        if (w > stageW) {
+          w = stageW;
+          h = Math.round(w / ratio);
+        }
+        return { w, h, mode: 'portrait' };
+      } else {
+        // Double page landscape on desktop
+        let h = stageH;
+        let w = Math.round(h * ratio * 2);
+        if (w > stageW) {
+          w = stageW;
+          h = Math.round(w / (ratio * 2));
+        }
+        return { w: Math.round(w / 2), h, mode: 'landscape' };
+      }
+    }
+
+    let pageFlip = null;
+
+    function initFlipbook() {
+      const { w, h, mode } = calcSize();
+      const container = document.getElementById('flipbook');
+      container.innerHTML = '';
+
+      pageFlip = new St.PageFlip(container, {
+        width: w,
+        height: h,
+        size: 'fixed',
+        minWidth: 200,
+        maxWidth: 1600,
+        minHeight: 300,
+        maxHeight: 2400,
+        showCover: true,
+        mobileScrollSupport: false,
+        drawShadow: true,
+        flippingTime: 650,
+        startPage: 0,
+        usePortrait: mode === 'portrait',
+        autoSize: false,
+        maxShadowOpacity: 0.6,
+        clickEventForward: true,
+        useMouseEvents: true,
+        swipeDistance: 25,
+        showPageCount: true,
+      });
+
+      pageFlip.loadFromImages(pages);
+
+      pageFlip.on('flip', (e) => updateUI(e.data));
+      pageFlip.on('changeState', () => updateUI(pageFlip.getCurrentPageIndex()));
+
+      pageFlip.on('init', () => {
+        document.getElementById('loading').classList.add('hidden');
+        updateUI(0);
+        document.getElementById('header-sub').textContent = `${TOTAL_PAGES} páginas`;
+      });
+    }
+
+    function updateUI(pageIdx) {
+      if (!pageFlip) return;
+      const total = pageFlip.getPageCount();
+      const display = pageIdx + 1;
+      document.getElementById('page-info').textContent = `Pág. ${display} / ${total}`;
+      const pct = (pageIdx / Math.max(total - 1, 1)) * 100;
+      document.getElementById('progress-bar').style.width = pct + '%';
+    }
+
+    // ── Controls ──
+    document.getElementById('btn-prev').addEventListener('click', () => pageFlip && pageFlip.flipPrev());
+    document.getElementById('btn-next').addEventListener('click', () => pageFlip && pageFlip.flipNext());
+    document.getElementById('btn-first').addEventListener('click', () => pageFlip && pageFlip.flip(0));
+    document.getElementById('btn-last').addEventListener('click', () => pageFlip && pageFlip.flip(pageFlip.getPageCount() - 1));
+
+    document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
+
+    function toggleFullscreen() {
+      const fsText = document.getElementById('fs-text');
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+        fsText.textContent = 'Sair';
+      } else {
+        document.exitFullscreen().catch(() => {});
+        fsText.textContent = 'Tela cheia';
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      const fsText = document.getElementById('fs-text');
+      if (document.fullscreenElement) {
+        fsText.textContent = 'Sair';
+      } else {
+        fsText.textContent = 'Tela cheia';
+      }
+    });
+
+    // ── Keyboard ──
+    document.addEventListener('keydown', (e) => {
+      if (!pageFlip) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext();
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   pageFlip.flipPrev();
+      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+      if (e.key === 'Home') pageFlip.flip(0);
+      if (e.key === 'End')  pageFlip.flip(pageFlip.getPageCount() - 1);
+    });
+
+    // ── Resize handler with debounce ──
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (pageFlip) {
+          const { w, h, mode } = calcSize();
+          pageFlip.update({
+            width: w,
+            height: h,
+            usePortrait: mode === 'portrait'
+          });
+        }
+      }, 200);
+    });
+
+    window.addEventListener('load', initFlipbook);
+  </script>
+</body>
+</html>
